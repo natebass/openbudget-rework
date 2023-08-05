@@ -1,5 +1,5 @@
 export function getBudgetDefaults(budgets) {
-  // TODO: add a more sophisiticated selection algorithm;
+  // TODO: add a more sophisticated selection algorithm;
   // e.g. find current year, compare adopted to proposed,
   // or proposed to previous adopted, etc
   let index1 = 0;

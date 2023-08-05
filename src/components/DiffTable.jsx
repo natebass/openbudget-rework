@@ -1,57 +1,53 @@
-import React, { useState, useEffect } from "react";
-import { Bar } from "react-chartjs-2";
-import { entries, keys, set } from "d3-collection";
-import { ascending, descending } from "d3-array";
+import React, { useState } from "react"
+import { Bar } from "react-chartjs-2"
+import { keys, set } from "d3-collection"
+import { ascending, descending } from "d3-array"
 
-import {
-  asTick,
-  asDiff,
-  DiffStyled,
-  compareChartOptions,
-} from "../utils/utils";
+import { DiffStyled, } from "../utils/utils"
 
-const DiffTable2 = ({ data, usePct, years, colors, diffColors }) => {
-  const [sortBy, setSortBy] = useState("diff");
+const DiffTable = ({data, usePct, years, colors, diffColors}) => {
+  const [sortBy, setSortBy] = useState("diff")
 
   const updateSort = (e) => {
-    sortBy(e.target.value);
-  };
+    const target = e.target;
+    setSortBy(target.value);
+  }
 
-  const sortFunc = sortBy === "diff" ? descending : ascending;
-  const allKeys = set();
+  const sortFunc = sortBy === "diff" ? descending : ascending
+  const allKeys = set()
   keys(data[0]).forEach((key) => {
-    allKeys.add(key);
-  });
+    allKeys.add(key)
+  })
   keys(data[1]).forEach((key) => {
-    allKeys.add(key);
-  });
+    allKeys.add(key)
+  })
   const diffList = allKeys
     .values()
     .map((key) => {
-      // check for key in both years; if one is missing,
+      // check for key in both years if one is missing,
       // set some special value that indicates that
       const res = {
         key,
         value: data[0][key],
         prev: data[1][key],
-      };
-      // if key exists in previous, we can calculate a diff;
+      }
+      // if key exists in previous, we can calculate a diff
       // missing values (removed entities) cast to zero for -100% diff
       if (res.prev) {
-        res.diff = (res.value || 0) - res.prev;
+        res.diff = (res.value || 0) - res.prev
         if (usePct) {
-          res.diff = res.diff / Math.abs(res.prev);
+          res.diff = res.diff / Math.abs(res.prev)
         }
       } else {
         // sentinel value: indicates there was no previous budget,
         // so this is a newly created entity. UI can handle these differently
         // if desired, and they will sort to the top of the list.
-        res.diff = Infinity;
+        res.diff = Infinity
       }
-      return res;
+      return res
     })
     .sort((a, b) => {
-      return sortFunc(a[sortBy], b[sortBy]);
+      return sortFunc(a[sortBy], b[sortBy])
     })
     .map((entry) => {
       const data = {
@@ -59,22 +55,22 @@ const DiffTable2 = ({ data, usePct, years, colors, diffColors }) => {
         datasets: [
           {
             data: [entry.value],
-            label: this.props.years[0].fiscal_year_range,
-            backgroundColor: this.props.colors[0],
+            label: years[0].value,
+            backgroundColor: colors[0],
           },
           {
             data: [entry.prev],
-            label: years[1].fiscal_year_range,
-            backgroundColor: this.props.colors[1],
+            label: years[1].value,
+            backgroundColor: colors[1],
           },
         ],
-      };
+      }
       return (
         <tr key={entry.key}>
           <td>
             <h4>
               {entry.key}
-              <Bar data={data} options={compareChartOptions} height={40}></Bar>
+              <Bar data={data} height={40}></Bar>
             </h4>
           </td>
           <td>
@@ -89,20 +85,16 @@ const DiffTable2 = ({ data, usePct, years, colors, diffColors }) => {
     });
 
   return (
+    // Todo: Use CSS Grid to display 2 rows on xl, 1 row sm, and make both responsive resize
     <table className="table">
       <thead>
         <tr>
-          <th colSpan="2" className="form-horizontal">
-            <div className="form-group">
-              <label
-                className="col-sm-3 col-sm-offset-6 control-label"
-                htmlFor="sortControl"
-              >
-                sort by:{" "}
-              </label>
-              <div className="col-sm-3">
+          <th className="">
+            <div className="">
+              <label className="" htmlFor="sortControl">Sort by:{" "}</label>
+              <div className="">
                 <select
-                  className="form-control"
+                  className=""
                   id="sortControl"
                   value={sortBy}
                   onChange={updateSort}
@@ -119,129 +111,4 @@ const DiffTable2 = ({ data, usePct, years, colors, diffColors }) => {
     </table>
   );
 };
-
-export default class DiffTable extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      sortBy: "diff",
-    };
-    this.updateSort = this.updateSort.bind(this);
-  }
-
-  updateSort(event) {
-    const target = event.target;
-    this.setState({ sortBy: target.value });
-  }
-
-  render() {
-    const sortFunc = this.state.sortBy === "diff" ? descending : ascending;
-
-    // get list of all possible keys from both budgets
-    const allKeys = set();
-    keys(this.props.data[0]).forEach((key) => {
-      allKeys.add(key);
-    });
-    keys(this.props.data[1]).forEach((key) => {
-      allKeys.add(key);
-    });
-    const diffList = allKeys
-      .values()
-      .map((key) => {
-        // check for key in both years; if one is missing,
-        // set some special value that indicates that
-        const res = {
-          key,
-          value: this.props.data[0][key],
-          prev: this.props.data[1][key],
-        };
-        // if key exists in previous, we can calculate a diff;
-        // missing values (removed entities) cast to zero for -100% diff
-        if (res.prev) {
-          res.diff = (res.value || 0) - res.prev;
-          if (this.props.usePct) {
-            res.diff = res.diff / Math.abs(res.prev);
-          }
-        } else {
-          // sentinel value: indicates there was no previous budget,
-          // so this is a newly created entity. UI can handle these differently
-          // if desired, and they will sort to the top of the list.
-          res.diff = Infinity;
-        }
-        return res;
-      })
-      .sort((a, b) => {
-        return sortFunc(a[this.state.sortBy], b[this.state.sortBy]);
-      })
-      .map((entry) => {
-        const data = {
-          labels: [""],
-          datasets: [
-            {
-              data: [entry.value],
-              label: this.props.years[0].fiscal_year_range,
-              backgroundColor: this.props.colors[0],
-            },
-            {
-              data: [entry.prev],
-              label: this.props.years[1].fiscal_year_range,
-              backgroundColor: this.props.colors[1],
-            },
-          ],
-        };
-
-        return (
-          <tr key={entry.key}>
-            <td>
-              <h4>
-                {entry.key}
-                <Bar
-                  data={data}
-                  options={compareChartOptions}
-                  height={40}
-                ></Bar>
-              </h4>
-            </td>
-            <td>
-              <DiffStyled
-                diff={entry.diff}
-                colors={this.props.diffColors}
-                usePct={this.props.usePct}
-              ></DiffStyled>
-            </td>
-          </tr>
-        );
-      });
-
-    return (
-      <table className="table">
-        <thead>
-          <tr>
-            <th colSpan="2" className="form-horizontal">
-              <div className="form-group">
-                <label
-                  className="col-sm-3 col-sm-offset-6 control-label"
-                  htmlFor="sortControl"
-                >
-                  sort by:{" "}
-                </label>
-                <div className="col-sm-3">
-                  <select
-                    className="form-control"
-                    id="sortControl"
-                    value={this.state.sortBy}
-                    onChange={this.updateSort}
-                  >
-                    <option value="diff">amount</option>
-                    <option value="key">name</option>
-                  </select>
-                </div>
-              </div>
-            </th>
-          </tr>
-        </thead>
-        <tbody>{diffList}</tbody>
-      </table>
-    );
-  }
-}
+export default DiffTable
