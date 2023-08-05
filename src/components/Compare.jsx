@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react"
 import { schemeSet2 as colors } from "d3-scale-chromatic"
 import Select from "react-select"
-import { fetchTotals } from "./api/fetchTotals"
+import { fetchTotals } from "../api/fetchTotals"
 import './Compare.css'
 import { Bar } from "react-chartjs-2"
-import { asTick, DiffStyled } from "./utils/utils"
+import { asTick, DiffStyled } from "../utils/utils"
 import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip, } from "chart.js"
-import Breakdown from "./components/Breakdown";
+import Breakdown from "./Breakdown";
 
 ChartJS.register(
   CategoryScale,

@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import Compare from './Compare.jsx'
+import Compare from './components/Compare.jsx'
 import './index.css'
 import { QueryClient, QueryClientProvider } from "react-query";
 
