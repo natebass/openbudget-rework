@@ -47,8 +47,9 @@ const TrendBarChart = ({data, years, colors}) => {
  */
 const BreakdownChartList = ({data, usePercent, years, colors, diffColors}) => {
   const [sortBy, setSortBy] = useState("diff")
+  // Todo: Fix update sort not updating bug
   const updateSort = it => setSortBy(it.value)
-  const options = [{"value": "diff", "label": 'Amount'}, {"value": "key", "label": 'Name',}]
+  const options = [{"value": "diff", "label": 'Amount'}, {"value": "key", "label": 'Name'}]
   const allKeys = set()
   keys(data[0]).forEach(key => allKeys.add(key))
   keys(data[1]).forEach(key => allKeys.add(key))
@@ -65,9 +66,7 @@ const BreakdownChartList = ({data, usePercent, years, colors, diffColors}) => {
       // For missing values (removed entities) cast to zero for -100% diff
       if (response.prev) {
         response.diff = (response.value || 0) - response.prev
-        if (usePercent) {
-          response.diff = response.diff / Math.abs(response.prev)
-        }
+        if (usePercent) response.diff = response.diff / Math.abs(response.prev)
       } else {
         // Sentinel value: indicates there was no previous budget,
         // so this is a newly created entity. UI can handle these differently
@@ -100,6 +99,7 @@ const BreakdownChartList = ({data, usePercent, years, colors, diffColors}) => {
             {entry.key}
             <Bar className="grow w-max" data={data} options={horizontalChartOptions} height={40}></Bar>
           </div>
+          {/*Todo: Make this item justify the the right*/}
           <div className="">
             <DiffStyled
               diff={entry.diff}
