@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react"
-import { schemeSet2 as colors } from "d3-scale-chromatic"
+import React, {useEffect, useState} from "react"
+import {schemeSet2 as colors} from "d3-scale-chromatic"
 import Select from "react-select"
-import { fetchTotals } from "../api/fetchTotals"
-import './Compare.css'
-import { Bar } from "react-chartjs-2"
-import { asTick, DiffStyled } from "../utils/utils"
-import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip, } from "chart.js"
-import Breakdown from "./Breakdown";
+import {fetchTotals} from "../api/fetchTotals"
+import {Bar} from "react-chartjs-2"
+import {asTick, DiffStyled} from "../utils/utils"
+import {BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip,} from "chart.js"
+import './Compare.scss'
+import Breakdown from "./Breakdown.jsx"
 
 ChartJS.register(
   CategoryScale,
@@ -69,14 +69,19 @@ function parseDiff(selectedYears, changeType) {
 }
 
 function parseBudgets() {
-  const budgets = data.map((option) => {
+  const budgets = data.map(option => {
     return {
       total: option.total,
       year: option.fiscal_year_range,
-    };
-  });
+    }
+  })
 }
 
+const tabs = [
+  {"id": "tab-spending-department", "position": 1},
+  {"id": "tab-spending-category", "position": 2},
+  {"id": "tab-revenue-department", "position": 3},
+  {"id": "tab-revenue-category", "position": 4}]
 const Compare = () => {
   const [budgets, setBudgets] = useState([])
   const [budget1Choice, setBudget1Choice] = useState({})
@@ -102,17 +107,31 @@ const Compare = () => {
       }
     }),
   }
+  const [selectedTab, setSelectedTab] = useState(tabs[0])
+
+  const changeTab = event => {
+    document.getElementById(selectedTab.id).classList.remove("active")
+    document.getElementById(selectedTab.id).classList.remove("tab-selector-active")
+    document.getElementById(selectedTab.id).classList.add("tab-selector-inactive")
+    document.getElementById(event.target.id).classList.remove("tab-selector-inactive")
+    document.getElementById(event.target.id).classList.add("active")
+    document.getElementById(event.target.id).classList.add("tab-selector-active")
+    const t = tabs.filter(it => {
+      return it.id === event.target.id
+    })[0]
+    setSelectedTab(t)
+  }
   useEffect(() => {
     fetchTotals()
       .then((data) => {
-        const selectOptions = data.map((option) => {
+        const selectOptions = data.map(option => {
           return {
             value: option.fiscal_year_range,
             budget_type: option.budget_type,
             label: `${option.fiscal_year_range} Adopted`,
             total: option.total,
-          };
-        });
+          }
+        })
 
         //default budget 1 and 2
         const defaultBudget1Choice = {
@@ -120,35 +139,24 @@ const Compare = () => {
           budget_type: data[0].budget_type,
           label: `${data[0].fiscal_year_range} Adopted`,
           total: data[0].total,
-        };
+        }
         const defaultBudget2Choice = {
           value: data[1].fiscal_year_range,
           budget_type: data[1].budget_type,
           label: `${data[1].fiscal_year_range} Adopted`,
           total: data[1].total,
-        };
-        setBudget1Choice(defaultBudget1Choice);
-        setBudget2Choice(defaultBudget2Choice);
-        setSelectOptions(selectOptions);
+        }
+        setBudget1Choice(defaultBudget1Choice)
+        setBudget2Choice(defaultBudget2Choice)
+        setSelectOptions(selectOptions)
       })
-      .catch((err) => console.log(err));
-  }, [fetchTotals]);
-  const customStyles1 = {
-    singleValue: (provided) => ({
-      ...provided,
-      color: "#66c2a5",
-    }),
-  }
-  const customStyles2 = {
-    singleValue: (provided) => ({
-      ...provided,
-      color: "#fc8d62",
-    }),
-  }
-
+      .catch((err) => console.log(err))
+  }, [fetchTotals])
+  const customStyles1 = {singleValue: provided => ({...provided, color: "#66c2a5"})}
+  const customStyles2 = {singleValue: provided => ({...provided, color: "#fc8d62"})}
   return (
     <div>
-      <div className="flex w-full h-32 items-end">
+      <div className="flex h-32 items-end">
         <div className="flex h-20 w-9/12">
           <div className="flex items-center text-xl">
             <label className="inline-block pr-2">Compare</label>
@@ -192,7 +200,7 @@ const Compare = () => {
               <DiffStyled
                 diff={diff}
                 colors={diffColors}
-                usePct={changeType.value === "pct"}
+                usePercent={changeType.value === "pct"}
               ></DiffStyled>
             </h2>
             <div className="h-[100px] w-full">
@@ -205,56 +213,68 @@ const Compare = () => {
         <h2 className="text-xl pt-12">Budget breakdowns</h2>
         <p>Get more detail on where money came from and how it was spent.</p>
         <div className="flex pt-6">
-          <div className="flex-none pr-8">
-            <div>Spending by Department</div>
-            <div>Spending by Category</div>
-            <div>Revenue by Department</div>
-            <div>Revenue by Category</div>
-          </div>
-          <div className="flex-auto w-32">
-            <div>
-              {Object.getOwnPropertyNames(selectedYears[1]).length !== 0 && (
+          <ul className="tab-container flex-none pr-8">
+            <div className="mr-2">
+              <a onClick={changeTab} id={tabs[0].id} className="tab-selector-active active">Spending by
+                Department</a>
+            </div>
+            <div className="mr-2">
+              <a onClick={changeTab} id={tabs[1].id} className="tab-selector-inactive">Spending by
+                Category</a>
+            </div>
+            <div className="mr-2">
+              <a onClick={changeTab} id={tabs[2].id} className="tab-selector-inactive">Revenue by
+                Department</a>
+            </div>
+            <div className="mr-2">
+              <a onClick={changeTab} id={tabs[3].id} className="tab-selector-inactive">Revenue by
+                Category</a>
+            </div>
+          </ul>
+          {Object.getOwnPropertyNames(selectedYears[1]).length !== 0 && (
+            <div className="flex-1 w-32">
+              {selectedTab.position === 1 && (
                 <Breakdown
                   colors={colors}
                   diffColors={diffColors}
-                  usePct={changeType.value === "pct"}
+                  usePercent={changeType.value === "pct"}
                   years={selectedYears}
                   type="spending"
                   dimension="department"
                 ></Breakdown>
               )}
-            </div>
-            <div>
-                {/* <Breakdown
+              {selectedTab.position === 2 && (
+                <Breakdown
                   colors={colors}
                   diffColors={diffColors}
-                  usePct={usePct}
+                  usePercent={changeType.value === "pct"}
                   years={selectedYears}
                   type="spending"
                   dimension="category"
-                ></Breakdown> */}
-            </div>
-            <div>
-                {/* <Breakdown
+                ></Breakdown>
+              )}
+              {selectedTab.position === 3 && (
+                <Breakdown
                   colors={colors}
                   diffColors={diffColors}
-                  usePct={usePct}
+                  usePercent={changeType.value === "pct"}
                   years={selectedYears}
                   type="revenue"
                   dimension="department"
-                ></Breakdown> */}
-            </div>
-            <div>
-                {/* <Breakdown
+                ></Breakdown>
+              )}
+              {selectedTab.position === 4 && (
+                <Breakdown
                   colors={colors}
                   diffColors={diffColors}
-                  usePct={usePct}
+                  usePercent={changeType.value === "pct"}
                   years={selectedYears}
                   type="revenue"
                   dimension="category"
-                ></Breakdown> */}
+                ></Breakdown>
+              )}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

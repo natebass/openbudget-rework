@@ -1,0 +1,40 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+@import url('https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&display=swap');
+
+@config "../../tailwind.config.cjs";
+
+* {
+    font-family: Arvo, serif;
+}
+
+.tab-container {
+  @apply text-sm;
+  @apply font-medium;
+  @apply text-center;
+  @apply text-gray-500;
+  @apply dark:text-gray-400;
+}
+
+.tab-selector-active {
+  @apply cursor-pointer;
+  @apply block;
+  @apply px-4;
+  @apply py-3;
+  @apply text-white;
+  @apply bg-emerald-900;
+  @apply rounded-lg;
+}
+
+.tab-selector-inactive {
+  @apply cursor-pointer;
+  @apply block;
+  @apply px-4;
+  @apply py-3;
+  @apply rounded-lg;
+  @apply dark:bg-gray-800;
+  @apply hover:text-gray-900;
+  @apply hover:bg-gray-100;
+  @apply dark:hover:text-white;
+}

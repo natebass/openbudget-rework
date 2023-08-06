@@ -1,18 +1,127 @@
-import React, { useState } from "react"
-import { useQuery } from "react-query";
-import DiffTable from "./DiffTable"
-import Trend from "./Trend.jsx"
-import { fetchBreakdownData } from "../api/fetchBreakdownData.js"
+import React, {useState} from "react"
+import {useQuery} from "react-query"
+import {fetchBreakdownData} from "../api/fetchBreakdownData.js"
+import {Bar} from "react-chartjs-2"
+import {keys, set} from "d3-collection"
+import {ascending, descending} from "d3-array"
 
-const Breakdown = ({
-  colors,
-  diffColors,
-  usePct,
-  years,
-  type,
-  dimension,
-}) => {
-  const [budgets, setBudgets] = useState([])
+import {DiffStyled,} from "../utils/utils"
+import Select from "react-select"
+
+const horizontalChartOptions = {
+  indexAxis: 'y',
+  responsive: true,
+  plugins: {
+    legend: {
+      display: false,
+    },
+    title: {
+      display: false,
+    }
+  }
+}
+
+const TrendBarChart = ({data, years, colors}) => {
+  const allKeys = set()
+  keys(data[0]).forEach(key => allKeys.add(key))
+  keys(data[1]).forEach(key => allKeys.add(key))
+  const labels = allKeys.values().sort()
+  const datasets = data.map((record, index) => {
+    return {
+      label: years[index].value,
+      data: labels.map(label => record[label]),
+      backgroundColor: colors[index],
+    }
+  })
+  return <Bar data={{labels, datasets}} height={125}></Bar>
+}
+
+const BreakdownChartList = ({data, usePercent, years, colors, diffColors}) => {
+  const [sortBy, setSortBy] = useState("diff")
+  const updateSort = it => setSortBy(it.value)
+  const options = [{"value": "diff", "label": 'Amount'}, {"value": "key", "label": 'Name',}]
+  const allKeys = set()
+  keys(data[0]).forEach(key => allKeys.add(key))
+  keys(data[1]).forEach(key => allKeys.add(key))
+  const diffList = allKeys
+    .values()
+    .map(key => {
+      // TODO: Check for the key in both years. If one is missing, set some special value that indicates that.
+      const response = {
+        key,
+        value: data[0][key],
+        prev: data[1][key],
+      }
+      // If key exists in previous, we can calculate a diff.
+      // For missing values (removed entities) cast to zero for -100% diff
+      if (response.prev) {
+        response.diff = (response.value || 0) - response.prev
+        if (usePercent) {
+          response.diff = response.diff / Math.abs(response.prev)
+        }
+      } else {
+        // Sentinel value: indicates there was no previous budget,
+        // so this is a newly created entity. UI can handle these differently
+        // if desired, and they will sort to the top of the list.
+        response.diff = Infinity
+      }
+      return response
+    })
+    .sort(() => sortBy === "diff" ? descending : ascending)
+    .map(entry => {
+      const data = {
+        labels: [""],
+        datasets: [
+          {
+            data: [entry.value],
+            label: years[0].value,
+            backgroundColor: colors[0],
+          },
+          {
+            data: [entry.prev],
+            label: years[1].value,
+            backgroundColor: colors[1],
+          },
+        ],
+      }
+      return (
+        // TODO: Fix table styling resize bug. Rewrite and clean up styles.
+        <div className="flex mt-6" key={entry.key}>
+          <div style={{position: "relative", margin: "auto", width: "70vw"}} className="flex-1">
+            {entry.key}
+            <Bar className="grow w-max" data={data} options={horizontalChartOptions} height={40}></Bar>
+          </div>
+          <div className="">
+            <DiffStyled
+              diff={entry.diff}
+              colors={diffColors}
+              usePercent={usePercent}
+            ></DiffStyled>
+          </div>
+        </div>
+      )
+    })
+
+  return (
+    <div className="mt-6">
+      <div className="flex justify-end">
+        <div className="flex items-center w-fit">
+          <label className="h-fit mr-3">Sort by:</label>
+          <Select
+            className=""
+            options={options}
+            value={options.filter(it => it.value === sortBy)}
+            onChange={updateSort}
+            searchable={false}
+            clearable={false}
+          />
+        </div>
+      </div>
+      <div className="">{diffList}</div>
+    </div>
+  )
+}
+const Breakdown = ({colors, diffColors, usePercent, years, type, dimension}) => {
   const yearNames = years.map(year => year.value)
   const yearTypes = years.map(year => year.budget_type)
   const {data, status} = useQuery(yearNames, () => fetchBreakdownData(yearNames, yearTypes, type, dimension))
@@ -22,13 +131,13 @@ const Breakdown = ({
       {status === "loading" && <p>Fetching data...</p>}
       {status === "success" && (
         <div>
-          <Trend data={data} colors={colors} years={years}></Trend>
-          <DiffTable
+          <TrendBarChart data={data} colors={colors} years={years}/>
+          <BreakdownChartList
             data={data}
             years={years}
             colors={colors}
             diffColors={diffColors}
-            usePct={usePct}
+            usePercent={usePercent}
           />
         </div>
       )}
