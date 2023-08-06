@@ -1,13 +1,7 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
-@import url('https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&display=swap');
-
 @config "../../tailwind.config.cjs";
-
-* {
-    font-family: Arvo, serif;
-}
 
 .tab-container {
   @apply text-sm;

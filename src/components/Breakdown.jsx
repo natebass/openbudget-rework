@@ -4,23 +4,28 @@ import {fetchBreakdownData} from "../api/fetchBreakdownData.js"
 import {Bar} from "react-chartjs-2"
 import {keys, set} from "d3-collection"
 import {ascending, descending} from "d3-array"
-
 import {DiffStyled,} from "../utils/utils"
 import Select from "react-select"
+import PropTypes from "prop-types";
+import {schemeSet2 as colors} from "d3-scale-chromatic"
 
+/**
+ * Horizontal bar chart with hidden legend
+ */
 const horizontalChartOptions = {
   indexAxis: 'y',
   responsive: true,
   plugins: {
     legend: {
       display: false,
-    },
-    title: {
-      display: false,
     }
   }
 }
 
+/**
+ * Breakdown budgets by department and account type.
+ * @component
+ */
 const TrendBarChart = ({data, years, colors}) => {
   const allKeys = set()
   keys(data[0]).forEach(key => allKeys.add(key))
@@ -36,6 +41,10 @@ const TrendBarChart = ({data, years, colors}) => {
   return <Bar data={{labels, datasets}} height={125}></Bar>
 }
 
+/**
+ * Breakdown budgets by department and account type.
+ * @component
+ */
 const BreakdownChartList = ({data, usePercent, years, colors, diffColors}) => {
   const [sortBy, setSortBy] = useState("diff")
   const updateSort = it => setSortBy(it.value)
@@ -121,7 +130,13 @@ const BreakdownChartList = ({data, usePercent, years, colors, diffColors}) => {
     </div>
   )
 }
-const Breakdown = ({colors, diffColors, usePercent, years, type, dimension}) => {
+
+/**
+ * Breakdown budgets by department and account type.
+ * @component
+ */
+const Breakdown = props => {
+  const {colors, diffColors, usePercent, years, type, dimension} = props
   const yearNames = years.map(year => year.value)
   const yearTypes = years.map(year => year.budget_type)
   const {data, status} = useQuery(yearNames, () => fetchBreakdownData(yearNames, yearTypes, type, dimension))
@@ -144,4 +159,41 @@ const Breakdown = ({colors, diffColors, usePercent, years, type, dimension}) => 
     </div>
   )
 }
+
+Breakdown.propTypes = {
+  /**
+   * User's name
+   */
+  colors: PropTypes.string.isRequired,
+  /**
+   * User's age
+   */
+  diffColors: PropTypes.number.isRequired,
+  /**
+   * User's name
+   */
+  usePercent: PropTypes.string.isRequired,
+  /**
+   * User's age
+   */
+  years: PropTypes.number.isRequired,
+  /**
+   * User's name
+   */
+  type: PropTypes.string.isRequired,
+  /**
+   * User's age
+   */
+  dimension: PropTypes.number.isRequired,
+}
+
+Breakdown.defaultProps = {
+  colors: colors,
+  diffColors: colors,
+  usePercent: colors,
+  years: colors,
+  type: colors,
+  dimension: colors,
+}
+
 export default Breakdown
