@@ -29,17 +29,17 @@ This repository includes run/debug configurations for VSCode. For more informati
 ## Run with Make
 Running various tasks can be done with Make from the root directory.
 * Run docker container
-** ```make local```
+ * ```make local```
 * Run React Web Server
-** ```make launch-react```
+ * ```make launch-react```
 * Test React Web Server
-** ```make test-react```
+ * ```make test-react```
 * Build React Web Server
-** ```make build-react```
+ * ```make build-react```
 * Run Budget Data Scripts
-** ```make run-budget```
+ * ```make run-budget```
 * Test Budget Data Scripts
-** ```make test-budget```
+ * ```make test-budget```
 
 ## Docker
 You can run the front end and documentation server at the same time by running the docker compose in the root directory.
