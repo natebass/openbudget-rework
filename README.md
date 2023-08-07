@@ -15,7 +15,7 @@ npm run build
 ```
 
 ## Budget Data
-Run the files in the [/scripts](/scripts/) folder to generate budget data for the application. The source of the budget data is. The files are saved in the budgets folder, along with a config file that the scripts use to parse it. For more information about how to get started, view the [budget-data.md](/documentation/budget-data.md) documentation file.
+Run the files in the [/scripts](/scripts/) folder to generate budget data for the application. The source of the budget data is. The files are saved in the budgets folder, along with a config file that the scripts use to parse it. For more information, view the [budget-data.md](/documentation/budget-data.md) documentation file.
 ```sh
 python scripts/treemap_process_data.py budgets/1332_approved/City_of_Sacramento_Approved_Budgets.csv budgets/1322_approved/config.json
 ```
