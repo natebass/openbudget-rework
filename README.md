@@ -1,7 +1,7 @@
 # Open Budget Sacramento
 
 ## Contributing
-Visit the project page to learn more about how to contribute. Get involved with Code for Sacramento by attending our virtual meetups.
+Visit the [project page](https://codeforsacramento.org/projects) to learn more about how to contribute. Get involved with Code for Sacramento by attending our virtual meetups.
 
 ## Frontend Web Server
 Run the front end by starting the web server in the [/frontend](/frontend) directory.
