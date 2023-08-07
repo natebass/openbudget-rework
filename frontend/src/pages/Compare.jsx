@@ -6,7 +6,7 @@ import {Bar} from "react-chartjs-2"
 import {asTick, DiffStyled} from "../utils/utils"
 import {BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip,} from "chart.js"
 import './Compare.scss'
-import Breakdown from "./Breakdown.jsx"
+import Breakdown from "../components/Breakdown"
 
 ChartJS.register(
   CategoryScale,
