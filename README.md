@@ -3,7 +3,7 @@
 ## Contributing
 Visit the project page to learn more about how to contribute. Get involved with Code for Sacramento by attending our virtual meetups.
 
-## Front end
+## Frontend Web Server
 Run the front end by starting the web server in the [/frontend](/frontend) directory.
 ```sh
 npm start
