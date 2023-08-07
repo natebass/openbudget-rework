@@ -14,6 +14,7 @@ import Timeline from './pages/Timeline'
 import ToolsProjects from './pages/ToolsProjects'
 import WhoWeAre from './pages/WhoWeAre'
 import Home from './pages/Home'
+import Blog from './pages/Blog'
 
 const queryClient = new QueryClient()
 
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="timeline" element={<Timeline/>}/>
           <Route path="tools-projects" element={<ToolsProjects/>}/>
           <Route path="who-we-are" element={<WhoWeAre/>}/>
+          <Route path="blog" element={<Blog/>}/>
           <Route path="*" element={<NoPage/>}/>
         </Route>
       </Routes>
