@@ -49,3 +49,11 @@ export function reduceBudgetData(budget, yearTypes, dimensionKeys, dimension, in
     return accumulator
   }, {})
 }
+
+export function parseDiff(selectedYears, changeType) {
+  let difference = selectedYears[0].total - selectedYears[1].total
+  if (changeType.value === "pct") {
+    difference = difference / selectedYears[1].total
+  }
+  return difference
+}

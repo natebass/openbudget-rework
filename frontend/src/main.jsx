@@ -22,7 +22,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/openbudget-rework" element={<Layout/>}>
+        <Route path="/" element={<Layout/>}>
           <Route index element={<Compare/>}/>
           <Route path="home" element={<Home/>}/>
           <Route path="compare" element={<Compare/>}/>

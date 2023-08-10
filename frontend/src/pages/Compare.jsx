@@ -3,7 +3,7 @@ import {schemeSet2 as colors} from "d3-scale-chromatic"
 import Select from "react-select"
 import {fetchTotals} from "../api/fetchTotals"
 import {Bar} from "react-chartjs-2"
-import {asTick, DiffStyled} from "../utils/utils"
+import {asTick, DiffStyled, parseDiff} from "../utils/utils"
 import {BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip,} from "chart.js"
 import './Compare.scss'
 import Breakdown from "../components/Breakdown"
@@ -17,7 +17,8 @@ ChartJS.register(
   Legend
 )
 
-export const options = {
+// TODO: Move totals chart into it's own component.
+export const totalsChartOptions = {
   indexAxis: "y",
   elements: {
     bar: {
@@ -50,40 +51,24 @@ export const options = {
     },
   },
 }
-const styles = [{color: colors[0]}, {color: colors[1]}]
+
 const diffColors = {
   neg: "#e41a1c",
   pos: "#4daf4a",
 }
+
 const changesOptions = [
   { value: "pct", label: "percentage" },
   { value: "usd", label: "dollars" },
 ]
-
-function parseDiff(selectedYears, changeType) {
-  let difference = selectedYears[0].total - selectedYears[1].total
-  if (changeType.value === "pct") {
-    difference = difference / selectedYears[1].total
-  }
-  return difference
-}
-
-function parseBudgets() {
-  const budgets = data.map(option => {
-    return {
-      total: option.total,
-      year: option.fiscal_year_range,
-    }
-  })
-}
 
 const tabs = [
   {"id": "tab-spending-department", "position": 1},
   {"id": "tab-spending-category", "position": 2},
   {"id": "tab-revenue-department", "position": 3},
   {"id": "tab-revenue-category", "position": 4}]
+
 const Compare = () => {
-  const [budgets, setBudgets] = useState([])
   const [budget1Choice, setBudget1Choice] = useState({})
   const [budget2Choice, setBudget2Choice] = useState({})
   const [changeType, setChangeType] = useState({
@@ -204,7 +189,7 @@ const Compare = () => {
               ></DiffStyled>
             </h2>
             <div className="h-[100px] w-full">
-              <Bar data={totalData} options={options}/>
+              <Bar data={totalData} options={totalsChartOptions}/>
             </div>
           </div>
         )}

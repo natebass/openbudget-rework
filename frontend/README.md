@@ -1,4 +1,7 @@
 # Open Budget Web Server
+
+Note: I don't know if this project was created with Create React App. I just copied the README file as a template.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

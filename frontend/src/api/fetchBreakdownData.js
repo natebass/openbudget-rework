@@ -1,8 +1,8 @@
 import {reduceBudgetData} from "../utils/utils.jsx";
 
 const typePaths = {
-  spending: "/openbudget-rework/data/compare/fiscal-years-expenses",
-  revenue: "/openbudget-rework/data/compare/fiscal-years-revenue",
+  spending: "/data/compare/fiscal-years-expenses",
+  revenue: "/data/compare/fiscal-years-revenue",
 }
 const dimensionPaths = {
   department: "/depts",

@@ -9,7 +9,7 @@ import {sort} from "d3-array";
  */
 export const fetchTotals = async () => {
   try {
-    const response = await fetch("/openbudget-rework/data/compare/fiscal-years-expenses/totals.json")
+    const response = await fetch("/data/compare/fiscal-years-expenses/totals.json")
     const data = await response.json()
     const sortedData = data.sort(sortData)
     return sortedData
