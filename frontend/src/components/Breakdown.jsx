@@ -12,7 +12,7 @@ import {schemeSet2 as colors} from "d3-scale-chromatic"
 /**
  * Horizontal bar chart with hidden legend
  */
-const chartOptions = {
+const horizontalChartOptions = {
   indexAxis: "y",
   scales: {
     x: {
@@ -27,6 +27,16 @@ const chartOptions = {
     legend: {
       display: false,
     },
+    tooltip: {
+      callbacks: {
+        label: context => `${context.dataset.label}: ${asDecimalTick(context.raw / 1000000)}M`
+      },
+    }
+  }
+}
+
+const verticalChartOptions = {
+   plugins: {
     tooltip: {
       callbacks: {
         label: context => `${context.dataset.label}: ${asDecimalTick(context.raw / 1000000)}M`
@@ -51,7 +61,7 @@ const TrendBarChart = ({data, years, colors}) => {
       backgroundColor: colors[index],
     }
   })
-  return <Bar data={{labels, datasets}} height={125}></Bar>
+  return <Bar options={verticalChartOptions} data={{labels, datasets}} height={125}></Bar>
 }
 
 /**
@@ -60,7 +70,6 @@ const TrendBarChart = ({data, years, colors}) => {
  */
 const BreakdownChartList = ({data, usePercent, years, colors, diffColors}) => {
   const [sortBy, setSortBy] = useState("diff")
-  // TODO: Fix update sort not updating bug
   const sortFunc = sortBy === "diff" ? descending : ascending;
   const options = [{"value": "diff", "label": 'Amount'}, {"value": "key", "label": 'Name'}]
   const allKeys = set()
@@ -110,7 +119,7 @@ const BreakdownChartList = ({data, usePercent, years, colors, diffColors}) => {
         <div className="flex mt-6" key={entry.key}>
           <div style={{position: "relative", margin: "auto", width: "70vw"}} className="flex-1">
             {entry.key}
-            <Bar className="grow w-max" data={data} options={chartOptions} height={40}></Bar>
+            <Bar className="grow w-max" data={data} options={horizontalChartOptions} height={40}></Bar>
           </div>
           {/*TODO: Make this item justify the the right*/}
           <div className="">
