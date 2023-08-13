@@ -4,7 +4,7 @@ import {fetchBreakdownData} from "../api/fetchBreakdownData.js"
 import {Bar} from "react-chartjs-2"
 import {keys, set} from "d3-collection"
 import {ascending, descending} from "d3-array"
-import {DiffStyled,} from "../utils/utils"
+import {asDecimalTick, asTick, DiffStyled,} from "../utils/utils"
 import Select from "react-select"
 import PropTypes from "prop-types";
 import {schemeSet2 as colors} from "d3-scale-chromatic"
@@ -12,12 +12,25 @@ import {schemeSet2 as colors} from "d3-scale-chromatic"
 /**
  * Horizontal bar chart with hidden legend
  */
-const horizontalChartOptions = {
-  indexAxis: 'y',
+const chartOptions = {
+  indexAxis: "y",
+  scales: {
+    x: {
+      ticks: {
+        beginAtZero: true,
+        callback: value => `${asTick(value / 1000000)}M`
+      },
+    },
+  },
   responsive: true,
   plugins: {
     legend: {
       display: false,
+    },
+    tooltip: {
+      callbacks: {
+        label: context => `${context.dataset.label}: ${asDecimalTick(context.raw / 1000000)}M`
+      },
     }
   }
 }
@@ -48,7 +61,7 @@ const TrendBarChart = ({data, years, colors}) => {
 const BreakdownChartList = ({data, usePercent, years, colors, diffColors}) => {
   const [sortBy, setSortBy] = useState("diff")
   // TODO: Fix update sort not updating bug
-  const updateSort = it => setSortBy(it.value)
+  const sortFunc = sortBy === "diff" ? descending : ascending;
   const options = [{"value": "diff", "label": 'Amount'}, {"value": "key", "label": 'Name'}]
   const allKeys = set()
   keys(data[0]).forEach(key => allKeys.add(key))
@@ -60,7 +73,7 @@ const BreakdownChartList = ({data, usePercent, years, colors, diffColors}) => {
       const response = {
         key,
         value: data[0][key],
-        prev: data[1][key],
+        prev: data[1][key]
       }
       // If key exists in previous, we can calculate a diff.
       // For missing values (removed entities) cast to zero for -100% diff
@@ -75,7 +88,7 @@ const BreakdownChartList = ({data, usePercent, years, colors, diffColors}) => {
       }
       return response
     })
-    .sort(() => sortBy === "diff" ? descending : ascending)
+    .sort((a, b) => sortFunc(a[sortBy], b[sortBy]))
     .map(entry => {
       const data = {
         labels: [""],
@@ -97,7 +110,7 @@ const BreakdownChartList = ({data, usePercent, years, colors, diffColors}) => {
         <div className="flex mt-6" key={entry.key}>
           <div style={{position: "relative", margin: "auto", width: "70vw"}} className="flex-1">
             {entry.key}
-            <Bar className="grow w-max" data={data} options={horizontalChartOptions} height={40}></Bar>
+            <Bar className="grow w-max" data={data} options={chartOptions} height={40}></Bar>
           </div>
           {/*TODO: Make this item justify the the right*/}
           <div className="">
@@ -117,10 +130,9 @@ const BreakdownChartList = ({data, usePercent, years, colors, diffColors}) => {
         <div className="flex items-center w-fit">
           <label className="h-fit mr-3">Sort by:</label>
           <Select
-            className=""
             options={options}
-            value={options.filter(it => it.value === sortBy)}
-            onChange={updateSort}
+            value={options.filter(option => option.value === sortBy)[0]}
+            onChange={selection => setSortBy(selection.value)}
             searchable={false}
             clearable={false}
           />

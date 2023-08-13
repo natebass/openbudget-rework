@@ -1,7 +1,8 @@
 import React from "react"
 import {format} from "d3-format"
 
-export const asTick = format("$,.1f")
+export const asTick = format("$,")
+export const asDecimalTick = format("$,.1f")
 export const asDollars = format("+$,")
 export const asPercent = format("+.2%")
 
@@ -19,6 +20,8 @@ export function asDiff(value, usePercent) {
       }
   }
 }
+
+
 
 export function DiffStyled({diff, colors, usePercent}) {
   const style = {color: diff >= 0 ? colors.pos : colors.neg}
