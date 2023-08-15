@@ -7,38 +7,34 @@ export const asDollars = format("+$,");
 
 export const asPct = format("+.2%");
 
-export const BUDGET_TYPES = {
-  1: "Adopted",
-  2: "Adjusted",
-  3: "Proposed",
-};
-
 export const compareChartOptions = {
-  legend: {
-    display: false,
+  indexAxis: "y",
+  elements: {
+    bar: {
+      borderWidth: 2,
+    },
   },
   scales: {
-    xAxes: [
-      {
-        ticks: {
-          beginAtZero: true,
-          callback: (value) => {
-            // display as currency in millions
-            return `${asTick(value / 1000000)}M`;
-          },
-        },
-      },
-    ],
-  },
-  tooltips: {
-    callbacks: {
-      label: (item, data) => {
+    x: {
+      ticks: {
+        beginAtZero: true,
         // display as currency in millions
-        const label = data.datasets[item.datasetIndex].label;
-        return `${label}: ${asTick(item.xLabel / 1000000)}M`;
+        callback: value => `${asTick(value / 1000000)}M`
       },
     },
   },
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false,
+    },
+    tooltip: {
+      callbacks: {
+        // display as currency in millions
+        label: context => `${context.dataset.label}: ${asTick(context.raw / 1000000)}M`
+      },
+    }
+  }
 };
 
 export function asDiff(value, usePct) {
@@ -47,28 +43,27 @@ export function asDiff(value, usePct) {
     case Infinity:
       return "Newly Added";
     default:
-      break;
-  }
-  // otherwise choose the appropriate formatting
-  if (usePct) {
-    return asPct(value);
-  } else {
-    return asDollars(value);
+      // otherwise, choose the appropriate formatting.
+      if (usePct) {
+        return asPct(value);
+      } else {
+        return asDollars(value);
+      }
   }
 }
 
-export class DiffStyled extends React.Component {
-  constructor(props) {
-    super(props);
-  }
 
-  render() {
-    const style = {
-      color:
-        this.props.diff >= 0 ? this.props.colors.pos : this.props.colors.neg,
-    };
-    return (
-      <span style={style}> {asDiff(this.props.diff, this.props.usePct)}</span>
-    );
+export function DiffStyled({diff, colors, usePercent}) {
+  const style = {color: diff >= 0 ? colors.pos : colors.neg};
+  return (
+    <span style={style}> {asDiff(diff, usePercent)}</span>
+  );
+}
+
+export function parseDiff(selectedYears, changeType) {
+  let difference = selectedYears[0].total - selectedYears[1].total
+  if (changeType.value === "pct") {
+    difference = difference / selectedYears[1].total
   }
+  return difference
 }

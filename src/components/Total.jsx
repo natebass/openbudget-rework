@@ -1,23 +1,7 @@
 import React from "react";
-import { Bar } from "react-chartjs-2";
-import { entries } from "d3-collection";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-
-import {
-  asTick,
-  asDiff,
-  DiffStyled,
-  compareChartOptions,
-} from "../utils/utils";
-// import Spinner from "react-spinkit";
+import {Bar} from "react-chartjs-2";
+import {BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip,} from "chart.js";
+import {asDecimalTick, asTick, DiffStyled, parseDiff,} from "../utils/utils";
 
 ChartJS.register(
   CategoryScale,
@@ -28,7 +12,7 @@ ChartJS.register(
   Legend
 );
 
-export const options = {
+const chartOptions = {
   indexAxis: "y",
   elements: {
     bar: {
@@ -39,10 +23,7 @@ export const options = {
     x: {
       ticks: {
         beginAtZero: true,
-        callback: (value) => {
-          // display as currency in millions
-          return `${asTick(value / 1000000)}M`;
-        },
+        callback: value => `${asTick(value / 1000000)}M`
       },
     },
   },
@@ -51,30 +32,22 @@ export const options = {
     legend: {
       display: false,
     },
-  },
-  layout: {
-    padding: {
-      left: 0,
-      top: 0,
-      right: 0,
-      bottom: 0,
-    },
-  },
+    tooltip: {
+      callbacks: {
+        label: context => `${context.dataset.label}: ${asDecimalTick(context.raw / 1000000)}M`
+      },
+    }
+  }
 };
-const Total = ({ barData, colors, diffColors, usePct }) => {
-  if (barData.length === 0 || !Object.keys(barData[0]).length) {
-    return <div>Loading...</div>;
-  }
-  let diff = barData[0].total - barData[1].total;
-  if (usePct) {
-    diff = diff / barData[1].total;
-  }
+
+const Total = ({selectedYears, colors, diffColors, changeType}) => {
+  const diff = parseDiff(selectedYears, changeType)
   const data = {
     labels: ["Total"],
-    datasets: barData.map((entry, i) => {
+    datasets: selectedYears.map((entry, i) => {
       return {
         data: [entry.total],
-        label: entry.year,
+        label: entry.label,
         backgroundColor: colors[i],
         barPercentage: 0.8,
         categoryPercentage: 1,
@@ -89,11 +62,11 @@ const Total = ({ barData, colors, diffColors, usePct }) => {
         <DiffStyled
           diff={diff}
           colors={diffColors}
-          usePct={usePct}
+          usePercent={changeType.value === "pct"}
         ></DiffStyled>
       </h2>
       <div className="h-[100px] w-full">
-        <Bar data={data} options={options} />
+        <Bar data={data} options={chartOptions}/>
       </div>
     </div>
   );

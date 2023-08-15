@@ -1,11 +1,8 @@
-import axios from "axios";
-import { descending } from "d3-array";
-const url =
-  "https://api.openbudgetsac.org/?rest_route=/obo/v1/fiscal-years-expenses";
+const url = "/data/compare/fiscal-years-expenses/totals.json";
 export const fetchTotals = async () => {
   try {
-    const response = await axios.get(url);
-    const data = await response.data;
+    const response = await fetch(url);
+    const data = await response.json();
     if (data) {
       data.sort((a, b) => {
         // sort in reverse chronological order,
@@ -19,7 +16,7 @@ export const fetchTotals = async () => {
           // 2 digit year before the decimal, transformed type number after
           return +`${year}.${type}`;
         });
-        return descending(indexA, indexB);
+        return indexA < indexB ? 1 : -1;
       });
     }
     return data;
